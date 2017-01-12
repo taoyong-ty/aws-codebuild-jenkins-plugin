@@ -480,8 +480,7 @@ public class S3DataManagerTest {
         String prefixWithSlash = "/tmp/dir/";
         String path = "/tmp/dir/folder/file.txt";
 
-        S3DataManager dataManager = createDefaultSource();
-        assertEquals(FilenameUtils.separatorsToSystem("folder/file.txt"), dataManager.trimPrefix(path, prefixWithSlash));
+        assertEquals(FilenameUtils.separatorsToSystem("folder/file.txt"), S3DataManager.trimPrefix(path, prefixWithSlash));
     }
 
     @Test
@@ -489,7 +488,6 @@ public class S3DataManagerTest {
         String prefixNoSlash = "/tmp/dir";
         String path = "/tmp/dir/folder/file.txt";
 
-        S3DataManager dataManager = createDefaultSource();
-        assertEquals(FilenameUtils.separatorsToSystem("folder/file.txt"), dataManager.trimPrefix(path, prefixNoSlash));
+        assertEquals(FilenameUtils.separatorsToSystem("folder/file.txt"), S3DataManager.trimPrefix(path, prefixNoSlash));
     }
 }
