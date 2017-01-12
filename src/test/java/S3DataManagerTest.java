@@ -25,6 +25,7 @@ import hudson.model.BuildListener;
 import hudson.scm.SCM;
 import net.lingala.zip4j.core.ZipFile;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -472,5 +473,23 @@ public class S3DataManagerTest {
 
         File extractedBuildSpec = new File(unzipFolder.getPath() + "/" + buildSpecName);
         assertTrue(FileUtils.readFileToString(extractedBuildSpec).equals(contents.toString()));
+    }
+
+    @Test
+    public void testTrimPrefixBaseWithTrailingSlash() throws Exception {
+        String prefixWithSlash = "/tmp/dir/";
+        String path = "/tmp/dir/folder/file.txt";
+
+        S3DataManager dataManager = createDefaultSource();
+        assertEquals(FilenameUtils.separatorsToSystem("folder/file.txt"), dataManager.trimPrefix(path, prefixWithSlash));
+    }
+
+    @Test
+    public void testGetRelativePathStringBaseDirWithoutTrailingSlash() throws Exception {
+        String prefixNoSlash = "/tmp/dir";
+        String path = "/tmp/dir/folder/file.txt";
+
+        S3DataManager dataManager = createDefaultSource();
+        assertEquals(FilenameUtils.separatorsToSystem("folder/file.txt"), dataManager.trimPrefix(path, prefixNoSlash));
     }
 }

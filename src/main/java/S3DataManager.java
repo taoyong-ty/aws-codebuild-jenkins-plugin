@@ -32,6 +32,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -104,7 +106,7 @@ public class S3DataManager {
     // Recursively zips everything in the given directory into a zip file using the given ZipOutputStream.
     // @param directory: whose contents will be zipped.
     // @param out: ZipOutputStream that will write data to its zip file.
-    // @param prefixToTrim: the prefix in directory that should be trimmed before zipping.
+    // @@param prefixToTrim: the prefix in directory that should be trimmed before zipping.
     //    Example:
     //     The given directory is /tmp/dir/folder/ which contains one file /tmp/dir/folder/file.txt
     //     The given prefixToTrim is /tmp/dir/
@@ -113,8 +115,8 @@ public class S3DataManager {
     //     The given directory is /tmp/dir/folder/ which contains one file /tmp/dir/folder/file.txt
     //     The given prefixToTrim is /tmp/dir/folder
     //     Then the zip file created will expand into file.txt
-    public static void zipSource(String directory, ZipOutputStream out, String prefixToTrim) throws Exception {
-        if (!Validation.checkPrefixToTrim(directory, prefixToTrim)) {
+    public static void zipSource(final String directory, final ZipOutputStream out, final String prefixToTrim) throws Exception {
+        if (!Paths.get(directory).startsWith(Paths.get(prefixToTrim))) {
             throw new Exception(zipSourceError + "prefixToTrim: " + prefixToTrim + ", directory: "+ directory);
         }
 
@@ -133,9 +135,7 @@ public class S3DataManager {
             } else {
                 FileInputStream inputStream = new FileInputStream(f);
                 try {
-                    String path = f.getPath();
-
-                    path = path.substring(prefixToTrim.length(), path.length());
+                    String path = trimPrefix(f.getPath(), prefixToTrim);
 
                     ZipEntry entry = new ZipEntry(path);
                     out.putNextEntry(entry);
@@ -147,5 +147,17 @@ public class S3DataManager {
                 }
             }
         }
+    }
+
+    // Trim a directory prefix from a file path
+    // @param path: file path.
+    // @param prefixToTrim: the prefix in directory that should be trimmed before zipping.
+    // @return path with no prefixToTrim
+    //   Example:
+    //     The given path is /tmp/dir/folder/file.txt
+    //     The given prefixToTrim can be /tmp/dir/ or /tmp/dir
+    //     Then the returned path string will be folder/file.txt.
+    public static String trimPrefix(final String path, final String prefixToTrim) {
+        return Paths.get(prefixToTrim).relativize(Paths.get(path)).toString();
     }
 }
