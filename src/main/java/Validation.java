@@ -18,6 +18,7 @@ import com.amazonaws.services.codebuild.model.InvalidInputException;
 import com.amazonaws.services.logs.AWSLogsClient;
 import com.amazonaws.services.s3.model.BucketVersioningConfiguration;
 import hudson.FilePath;
+import org.apache.commons.io.FilenameUtils;
 
 import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 import static org.apache.commons.lang.StringEscapeUtils.escapeSql;
@@ -45,6 +46,14 @@ public class Validation {
         } else {
             return Integer.parseInt(s);
         }
+    }
+
+    public static boolean checkPrefixToTrim(final String directory, final String prefixToTrim) {
+        // convert the file path separator to the system-specific char
+        final String directoryNormalized = FilenameUtils.separatorsToSystem(directory);
+        final String prefixToTrimNormalized = FilenameUtils.separatorsToSystem(prefixToTrim);
+
+        return directoryNormalized.contains(prefixToTrimNormalized);
     }
 
 

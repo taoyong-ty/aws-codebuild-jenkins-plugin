@@ -27,7 +27,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -115,18 +114,14 @@ public class S3DataManager {
     //     The given prefixToTrim is /tmp/dir/folder
     //     Then the zip file created will expand into file.txt
     public static void zipSource(String directory, ZipOutputStream out, String prefixToTrim) throws Exception {
-        // convert the file path separator to the system-specific char
-        final String directoryNormalized = FilenameUtils.separatorsToSystem(directory);
-        final String prefixToTrimNormalized = FilenameUtils.separatorsToSystem(prefixToTrim);
-
-        if (!directoryNormalized.contains(prefixToTrimNormalized)) {
-            throw new Exception(zipSourceError + "prefixToTrim: " + prefixToTrimNormalized + ", directory: "+ directoryNormalized);
+        if (!Validation.checkPrefixToTrim(directory, prefixToTrim)) {
+            throw new Exception(zipSourceError + "prefixToTrim: " + prefixToTrim + ", directory: "+ directory);
         }
 
-        File dir = new File(directoryNormalized);
+        File dir = new File(directory);
         String[] dirFiles = dir.list();
         if (dirFiles == null) {
-            throw new Exception("Invalid directory path provided: " + directoryNormalized);
+            throw new Exception("Invalid directory path provided: " + directory);
         }
         byte[] buffer = new byte[1024];
         int bytesRead;
@@ -134,13 +129,13 @@ public class S3DataManager {
         for (int i = 0; i < dirFiles.length; i++) {
             File f = new File(dir, dirFiles[i]);
             if (f.isDirectory()) {
-                zipSource(f.getPath() + File.separator, out, prefixToTrimNormalized);
+                zipSource(f.getPath() + File.separator, out, prefixToTrim);
             } else {
                 FileInputStream inputStream = new FileInputStream(f);
                 try {
                     String path = f.getPath();
 
-                    path = path.substring(prefixToTrimNormalized.length(), path.length());
+                    path = path.substring(prefixToTrim.length(), path.length());
 
                     ZipEntry entry = new ZipEntry(path);
                     out.putNextEntry(entry);
