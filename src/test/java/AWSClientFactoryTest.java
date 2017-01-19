@@ -41,7 +41,7 @@ public class AWSClientFactoryTest {
         // Given
         setUpInstanceWithProfile();
 
-        AWSClientFactory cf = new AWSClientFactory("", "", "", "", "region");
+        AWSClientFactory cf = new AWSClientFactory("", "", "", "", REGION);
 
         // Then
         assertTrue(cf.isInstanceProfileCredentialUsed());
@@ -52,7 +52,7 @@ public class AWSClientFactoryTest {
         // Given
         setUpInstanceWithProfile();
 
-        AWSClientFactory cf = new AWSClientFactory("", "", "iamId", "iamKey", "region");
+        AWSClientFactory cf = new AWSClientFactory("", "", "iamId", "iamKey", REGION);
 
         // Then
         assertFalse(cf.isInstanceProfileCredentialUsed());
@@ -63,7 +63,7 @@ public class AWSClientFactoryTest {
         // Given
         setUpInstanceWithNoProfile();
 
-        AWSClientFactory cf = new AWSClientFactory("", "", "iamId", "iamKey", "region");
+        AWSClientFactory cf = new AWSClientFactory("", "", "iamId", "iamKey", REGION);
 
         // Then
         assertFalse(cf.isInstanceProfileCredentialUsed());
